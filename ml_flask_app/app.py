@@ -84,8 +84,46 @@ def upload():
     cluster_labels = kmeans.fit_predict(X_k)
     df_clean["cluster"] = cluster_labels
 
-    # compute cluster statistics (price vs units_sold vs profit)
-    cluster_stats_df = df_clean.groupby("cluster").agg({
+    # Create dataframe with original (non-standardized) values for display statistics
+    # df_clean has standardized values (z-scores) which can be negative
+    # We need original values for meaningful statistics display
+    df_for_stats = df.copy()
+    
+    # Apply same preprocessing steps EXCEPT standardization (to match df_clean row order)
+    # Step 1: Drop rows with too many missing values
+    df_for_stats['n_missing_row'] = df_for_stats.isna().sum(axis=1)
+    df_for_stats = df_for_stats[df_for_stats['n_missing_row'] < 3].drop(columns=['n_missing_row'])
+    
+    # Step 2: Impute missing values
+    NUMERIC_FEATURES = ["price", "cost", "units_sold", "promotion_frequency", "shelf_level", "profit"]
+    for col in NUMERIC_FEATURES:
+        if col in df_for_stats.columns:
+            if df_for_stats[col].isna().sum() > 0:
+                median = df_for_stats[col].median()
+                df_for_stats[col] = df_for_stats[col].fillna(median)
+    
+    for col in df_for_stats.select_dtypes(include=['object', 'category']).columns:
+        if df_for_stats[col].isna().sum() > 0:
+            mode_val = df_for_stats[col].mode()
+            if len(mode_val) > 0:
+                df_for_stats[col] = df_for_stats[col].fillna(mode_val.iloc[0])
+    
+    # Step 3: Apply outlier capping
+    for col in NUMERIC_FEATURES:
+        if col not in df_for_stats.columns:
+            continue
+        q1 = df_for_stats[col].quantile(0.25)
+        q3 = df_for_stats[col].quantile(0.75)
+        iqr = q3 - q1
+        lower = q1 - 1.5 * iqr
+        upper = q3 + 1.5 * iqr
+        df_for_stats[col] = df_for_stats[col].clip(lower=lower, upper=upper)
+    
+    # Step 4: Assign clusters (same order as df_clean)
+    df_for_stats["cluster"] = cluster_labels
+    
+    # compute cluster statistics using original (non-standardized) values
+    cluster_stats_df = df_for_stats.groupby("cluster").agg({
         "product_id": "count",
         "price": "mean",
         "units_sold": "mean",
@@ -93,10 +131,10 @@ def upload():
         "promotion_frequency": "mean"
     }).rename(columns={"product_id": "n_products"}).reset_index()
     
-    # Calculate overall averages for comparison
-    overall_avg_price = df_clean["price"].mean()
-    overall_avg_units = df_clean["units_sold"].mean()
-    overall_avg_profit = df_clean["profit"].mean()
+    # Calculate overall averages for comparison (using original values)
+    overall_avg_price = df_for_stats["price"].mean()
+    overall_avg_units = df_for_stats["units_sold"].mean()
+    overall_avg_profit = df_for_stats["profit"].mean()
     
     # Name clusters and generate business insights
     def name_cluster_and_insights(row):
@@ -164,13 +202,11 @@ def upload():
     # Apply naming and insights to each cluster
     cluster_stats = [name_cluster_and_insights(row) for _, row in cluster_stats_df.iterrows()]
 
-    # cluster scatter plot (price vs units_sold)
+    # cluster scatter plot (price vs units_sold) - use original values for visualization
     fig2, ax2 = plt.subplots(figsize=(6, 5))
-    scatter = ax2.scatter(df_clean["price"], df_clean["units_sold"], c=df_clean["cluster"], cmap="tab10", s=35, alpha=0.8)
-    # mark centroids projected to these two dims
-    cents = kmeans.centroids
-    # centroids correspond to features_for_kmeans: price idx 0, units_sold idx 2
-    ax2.scatter(cents[:, 0], cents[:, 2], marker='X', s=150, c='black', label='centroids')
+    scatter = ax2.scatter(df_for_stats["price"], df_for_stats["units_sold"], c=df_for_stats["cluster"], cmap="tab10", s=35, alpha=0.8)
+    # Note: Centroids are in standardized space, so we skip showing them on original scale
+    # (showing them would require inverse transformation which is complex with multiple features)
     ax2.set_xlabel("price")
     ax2.set_ylabel("units_sold")
     ax2.set_title(f"Clusters (k={k_to_use}) — price vs units_sold")
@@ -179,7 +215,8 @@ def upload():
 
     # Regression
     # run two models and get evaluation and a plot for chosen target
-    regression_results = run_regression_models(df_clean.copy(), target=target)
+    # Use original (non-standardized) data for regression - models will handle scaling internally if needed
+    regression_results = run_regression_models(df_for_stats.copy(), target=target)
     # regression_results includes predictions and metrics and a matplotlib figure
     reg_plot_fig = regression_results["plot_fig"]
     reg_plot_fname = save_plot(reg_plot_fig, "regression_actual_vs_predicted")
@@ -188,8 +225,8 @@ def upload():
     metrics_table = regression_results["metrics"]
     comparison_analysis = regression_results["comparison_analysis"]
 
-    # prepare small dataset preview
-    preview_html = df_clean.head(20).to_html(classes="table table-sm table-striped", index=False)
+    # prepare small dataset preview (use original values, not standardized)
+    preview_html = df_for_stats.head(20).to_html(classes="table table-sm table-striped", index=False)
 
     # build results object for template
     results = {

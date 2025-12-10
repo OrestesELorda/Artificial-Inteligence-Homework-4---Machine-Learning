@@ -1,45 +1,36 @@
-# ML Flask App for Product Performance Analysis
-
-## Setup
 Steps:
+ 1.⁠ ⁠Install Python version: 3.10–3.12 recommended (maybe you can post the website link?)
 
-1. Install Python (This prgram only works with versions Python 3.10, Python 3.11, Python 3.12)
+ 2.⁠ ⁠Download the project folder
 
-2. Download the project folder
+ 3.⁠ ⁠Open terminal and go into the project folder
 
-3. Open a terminal and go into the project folder
+ 4.⁠ ⁠In terminal open the folder C:\...\...\...\Artificial-Inteligence-Homework-4---Machine-Learning-main\ml_flask_app
 
-4. Create and activate a virtual environment
+ 5.⁠ ⁠Installed the required libraries
+	- pip install -r requirements.txt
 
-#Creates virtual environment
-python -m venv venv 
+ 6.⁠ ⁠Installed the following:
+	- pip install flask
+	- pip install pandas
+	- pip install scikit-learn
+	- pip install matplotlib
 
-or
+ 7.⁠ ⁠Use in terminal: 
+	- python -m venv venv # Windows
+	- python3 -m venv venv # Mac
 
-python3 -m venv venv #Creates virtual environment #if first command doesnt work
-
-#Activates virtual environment
-source venv/bin/activate   # If Mac/Linux
-venv\Scripts\activate      # IF Windows
-
-
-5. Install the required libraries
-
-pip install -r requirements.txt
-
-
-6. Run the Flask app
-
-python app.py
+ 8.⁠ ⁠Use in terminal:
+ 
+	- source venv/bin/activate   # Mac/Linux
+	- venv\Scripts\activate      # Windows
 
 
-OR
+ 9.⁠ ⁠Run the Flask app
+	- python app.py
+	OR
+	- flask run
 
-flask run
-
-
-7. Open the website
-
-Go to:
-http://localhost:5000
-in your browser.
+10.⁠ ⁠Open the website
+Go to in your browser:
+	- http://localhost:5000

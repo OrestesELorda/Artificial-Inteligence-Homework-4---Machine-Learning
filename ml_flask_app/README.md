@@ -1,6 +1,7 @@
 Steps:
 
  1.⁠ ⁠Install Python version: 3.10–3.12 recommended 
+
     #MacOS/Linux
     -brew install python@3.12 
     #Windows

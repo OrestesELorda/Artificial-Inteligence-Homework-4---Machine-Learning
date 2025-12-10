@@ -89,7 +89,7 @@ def upload():
     # We need original values for meaningful statistics display
     df_for_stats = df.copy()
     
-    # Apply same preprocessing steps EXCEPT standardization (to match df_clean row order)
+    # apply same preprocessing steps except standardization (to match df_clean row order)
     # Step 1: Drop rows with too many missing values
     df_for_stats['n_missing_row'] = df_for_stats.isna().sum(axis=1)
     df_for_stats = df_for_stats[df_for_stats['n_missing_row'] < 3].drop(columns=['n_missing_row'])
@@ -131,12 +131,12 @@ def upload():
         "promotion_frequency": "mean"
     }).rename(columns={"product_id": "n_products"}).reset_index()
     
-    # Calculate overall averages for comparison (using original values)
+    # calculate overall averages for comparison (using original values)
     overall_avg_price = df_for_stats["price"].mean()
     overall_avg_units = df_for_stats["units_sold"].mean()
     overall_avg_profit = df_for_stats["profit"].mean()
     
-    # Name clusters and generate business insights
+    # name clusters and generate business insights
     def name_cluster_and_insights(row):
         """Generate cluster name and business insights based on characteristics"""
         price = row["price"]
@@ -145,7 +145,7 @@ def upload():
         n_products = row["n_products"]
         promo_freq = row["promotion_frequency"]
         
-        # Determine characteristics
+        # determine characteristics
         is_low_price = price < overall_avg_price
         is_high_price = price > overall_avg_price
         is_high_volume = units > overall_avg_units
@@ -153,7 +153,7 @@ def upload():
         is_high_profit = profit > overall_avg_profit
         is_low_profit = profit < overall_avg_profit
         
-        # Generate cluster name
+        # generate cluster name
         if is_low_price and is_high_volume:
             name = "Budget Best-Sellers"
             characteristics = "Low-price, high-volume products"
@@ -199,14 +199,14 @@ def upload():
             "business_insight": insight
         }
     
-    # Apply naming and insights to each cluster
+    # apply naming and insights to each cluster
     cluster_stats = [name_cluster_and_insights(row) for _, row in cluster_stats_df.iterrows()]
 
     # cluster scatter plot (price vs units_sold) - use original values for visualization
     fig2, ax2 = plt.subplots(figsize=(6, 5))
     scatter = ax2.scatter(df_for_stats["price"], df_for_stats["units_sold"], c=df_for_stats["cluster"], cmap="tab10", s=35, alpha=0.8)
-    # Note: Centroids are in standardized space, so we skip showing them on original scale
-    # (showing them would require inverse transformation which is complex with multiple features)
+    
+    # centroids are in standardized space so we skip showing them
     ax2.set_xlabel("price")
     ax2.set_ylabel("units_sold")
     ax2.set_title(f"Clusters (k={k_to_use}) — price vs units_sold")
@@ -215,7 +215,7 @@ def upload():
 
     # Regression
     # run two models and get evaluation and a plot for chosen target
-    # Use original (non-standardized) data for regression - models will handle scaling internally if needed
+    # sse original (non-standardized) data for regression (models will handle scaling internally if we need to)
     regression_results = run_regression_models(df_for_stats.copy(), target=target)
     # regression_results includes predictions and metrics and a matplotlib figure
     reg_plot_fig = regression_results["plot_fig"]

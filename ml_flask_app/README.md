@@ -3,26 +3,32 @@
 ## Setup
 Steps:
 
-Install Python (version 3.10–3.12 recommended)
+1. Install Python (This prgram only works with versions Python 3.10, Python 3.11, Python 3.12)
 
-Download the project folder
+2. Download the project folder
 
-1.Open a terminal and go into the project folder
+3. Open a terminal and go into the project folder
 
-2.Create and activate a virtual environment
+4. Create and activate a virtual environment
 
-python3 -m venv venv
+#Creates virtual environment
+python -m venv venv 
 
+or
+
+python3 -m venv venv #Creates virtual environment #if first command doesnt work
+
+#Activates virtual environment
 source venv/bin/activate   # If Mac/Linux
 venv\Scripts\activate      # IF Windows
 
 
-Install the required libraries
+5. Install the required libraries
 
 pip install -r requirements.txt
 
 
-Run the Flask app
+6. Run the Flask app
 
 python app.py
 
@@ -32,8 +38,8 @@ OR
 flask run
 
 
-Open the website
-Go to:
-👉 http://localhost:5000
+7. Open the website
 
+Go to:
+http://localhost:5000
 in your browser.

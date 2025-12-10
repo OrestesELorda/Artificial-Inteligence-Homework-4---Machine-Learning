@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 def prepare_features(df, target):
     # choose reasonable features (avoid target leak)
-    # we'll use numeric columns excluding target
+    # we will use numeric columns excluding target
     numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
     if target in numeric_cols:
         numeric_cols.remove(target)
@@ -68,7 +68,7 @@ def run_regression_models(df, target='profit'):
     comparison_analysis = {}
     comparison_analysis['best_model_key'] = best_name  # Store the key for template matching
     
-    # Determine which model performs better and why
+    # determine which model performs better and why
     if best_name == 'LinearRegression':
         mse_diff = mse_poly - mse_lr
         mae_diff = mae_poly - mae_lr
@@ -88,7 +88,7 @@ def run_regression_models(df, target='profit'):
             f"The polynomial features capture interactions and squared terms that improve prediction accuracy."
         )
     
-    # Check for overfitting
+    # check for overfitting
     lr_overfit_ratio = mse_lr / mse_lr_train if mse_lr_train > 0 else 1.0
     poly_overfit_ratio = mse_poly / mse_poly_train if mse_poly_train > 0 else 1.0
     
@@ -107,7 +107,7 @@ def run_regression_models(df, target='profit'):
         }
     }
     
-    # Tradeoffs
+    # tradeoffs
     comparison_analysis['tradeoffs'] = {
         'LinearRegression': {
             'pros': [
@@ -158,7 +158,7 @@ def run_regression_models(df, target='profit'):
     ax.legend()
     ax.grid(True, alpha=0.3)
     
-    # Residual plot
+    # residual plot
     residuals = y_test - preds
     fig_residual, ax_residual = plt.subplots(figsize=(6, 5))
     ax_residual.scatter(preds, residuals, alpha=0.7, s=50)

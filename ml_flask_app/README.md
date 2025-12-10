@@ -1,4 +1,5 @@
 Steps:
+
  1.⁠ ⁠Install Python version: 3.10–3.12 recommended (maybe you can post the website link?)
 
  2.⁠ ⁠Download the project folder
